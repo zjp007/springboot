@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zjp.dao.BooksDaoMapper">
+    <resultMap id="books" type="com.zjp.pojo.Books">
+        <id property="bookID" column="bookID"/>
+        <result property="bookName" column="bookName"/>
+        <result property="bookCounts" column="bookCounts"/>
+        <result property="detail" column="detail"/>
+    </resultMap>
+
+    <insert id="add" parameterType="com.zjp.pojo.Books" keyProperty="bookID">
+        INSERT INTO ssmbuild.books(bookName, bookCounts, detail) VALUES
+        (#{bookName}, #{bookCounts}, #{detail})
+    </insert>
+
+    <delete id="deletes" parameterType="java.util.List">
+        DELETE FROM ssmbuild.books WHERE bookID IN
+        <foreach collection="booksIDList" item="booksId" open="(" close=")" separator=",">
+            #{booksId}
+        </foreach>
+    </delete>
+
+    <update id="update" parameterType="com.zjp.pojo.Books">
+        UPDATE ssmbuild.books SET
+        <if test="bookName != null and bookName != ''">bookName = #{bookName},</if>
+        <if test="bookCounts != null">bookCounts = #{bookCounts},</if>
+        <if test="detail != null and detail != ''">detail = #{detail}</if>
+        WHERE bookID = #{bookID}
+    </update>
+
+    <select id="getById" parameterType="java.lang.Integer" resultType="com.zjp.pojo.Books">
+        SELECT bookID,bookName,bookCounts,detail FROM ssmbuild.books WHERE
+        bookID = #{bookID}
+    </select>
+
+    <select id="getByPageList" parameterType="java.util.Map" resultType="com.zjp.pojo.Books">
+        SELECT bookID,bookName,bookCounts,detail FROM ssmbuild.books WHERE 1=1
+        <if test="bookID != null">AND bookID = #{bookID}</if>
+        <if test="bookIDList != null and bookIDList.size > 0">
+            AND bookID IN
+            <foreach collection="bookIDList" item="booksId" open="(" close=")" separator=",">
+                #{booksId}
+            </foreach>
+        </if>
+        <if test="bookName != null and bookName != ''">AND bookName LIKE CONCAT('%',#{bookName},'%')</if>
+        <if test="bookCounts != null">AND bookCounts = #{bookCounts}</if>
+        <if test="detail != null and detail != ''">AND detail LIKE CONCAT('%',#{detail},'%')</if>
+        <if test="begin != null and end != null">LIMIT #{begin}, #{end}</if>
+    </select>
+
+    <select id="getCountByPageList" parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT count(*) FROM ssmbuild.books WHERE 1=1
+        <if test="bookID != null">AND bookID = #{bookID}</if>
+        <if test="bookIDList != null and bookIDList.size > 0">
+            AND bookID IN
+            <foreach collection="bookIDList" item="booksId" open="(" close=")" separator=",">
+                #{booksId}
+            </foreach>
+        </if>
+        <if test="bookName != null and bookName != ''">AND bookName LIKE CONCAT('%',#{bookName},'%')</if>
+        <if test="bookCounts != null">AND bookCounts = #{bookCounts}</if>
+        <if test="detail != null and detail != ''">AND detail LIKE CONCAT('%',#{detail},'%')</if>
+    </select>
+
+</mapper>
